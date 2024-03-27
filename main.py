@@ -1,21 +1,34 @@
-import requests
-from bs4 import BeautifulSoup
+from flask import Flask, render_template, Blueprint, request
 
 
-url = 'https://rufso.orgeo.ru/raiting/137'
-response = requests.get(url)
+app = Flask(__name__)
+admin_bp = Blueprint('admin', __name__)
 
 
-if response.status_code == 200:
-    soup = BeautifulSoup(response.text, 'html.parser')
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-    soup = BeautifulSoup(response.text, 'html.parser')
 
-    all_links = soup.find_all('a')
+@admin_bp.route('/admin')
+@app.route('/admin', methods=['GET', 'POST'])
+def admin():
+    if request.method == 'POST':
+        event_name = request.form['event_name']
+        discipline = request.form['discipline']
+        date = request.form['date']
+        protocol_link = request.form['protocol_link']
+        print("Received event data:")
+        print("Event Name:", event_name)
+        print("Discipline:", discipline)
+        print("Date:", date)
+        print("Protocol Link:", protocol_link)
+        return "Event data received successfully!"
+    return render_template('admin.html')
 
-    for link in all_links:
-        href = link.get('href')
-        if href:
-            print(link.text)
-else:
-    print('Ошибка при получении страницы:', response.status_code)
+
+app.register_blueprint(admin_bp)
+
+
+if __name__ == '__main__':
+    app.run(debug=True)

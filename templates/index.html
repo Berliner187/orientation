@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sportify</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='img/sportify-logo-black-rus.png') }}" type="image/x-icon">
+</head>
+<body>
+    {% set title = 'Sportify' %}
+    {% include 'navbar.html' %}
+
+    <section class="hero">
+        <div class="container">
+            <h2>Sportify - Тверь. Дрель. Спорт</h2>
+            <p>Просматривайте результаты соревнований.</p>
+        </div>
+    </section>
+    <section class="gallery">
+        <div class="container">
+            <div class="image-container">
+                <img src="{{ url_for('static', filename='img/main_img_1.jpg') }}" alt="Image 1">
+                <img src="{{ url_for('static', filename='img/main_img_2.jpg') }}" alt="Image 2">
+                <img src="{{ url_for('static', filename='img/main_img_3.jpg') }}" alt="Image 3">
+            </div>
+        </div>
+    </section>
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Sportify.</p>
+        </div>
+    </footer>
+</body>
+</html>
