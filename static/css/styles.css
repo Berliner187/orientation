@@ -125,7 +125,7 @@ body {
 }
 
 .image-container img {
-    width: 30%; /* Чтобы изображения занимали 30% ширины контейнера */
+    width: 30%;
     border-radius: 25px;
 }
 
@@ -135,4 +135,25 @@ footer {
     color: #fff;
     padding: 20px 0;
     text-align: center;
+}
+
+
+/* Flash messages */
+.flash-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    color: #fff;
+    z-index: 1000;
+}
+
+.flash-success {
+    background-color: #21ce99;
+}
+
+.flash-error {
+    background-color: #ff3860;
 }

@@ -2,6 +2,9 @@ import os
 import sqlite3
 
 
+__version__ = '0.1.0'
+
+
 USERS_DB = 'competitions.db'
 
 
@@ -24,10 +27,39 @@ name_fields_for_users = [
 ]
 
 
-class UserManager:
+class ManagerDataBase:
     def __init__(self, name_db):
         self.name_db = name_db
 
+    def check_exist_table(self, name_table):
+        __connect = sqlite3.connect(self.name_db)
+        __cursor = __connect.cursor()
+
+        __cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{name_table}'")
+        table_exists = __cursor.fetchone() is not None
+
+        __connect.commit()
+        __connect.close()
+
+        return table_exists
+
+    def check_by_id_in_database(self, table_name, __id):
+        __connect = sqlite3.connect(self.name_db)
+        __cursor = __connect.cursor()
+
+        __cursor.execute(f"SELECT * FROM {table_name} WHERE id = ?", (__id,))
+        result = __cursor.fetchone()
+
+        __cursor.close()
+        __connect.close()
+
+        if result:
+            return True
+        else:
+            return False
+
+
+class UserManager(ManagerDataBase):
     def add_new_user(self, name_table, lastname, firstname, team, group_name, scores):
         """
             Алгоритм добавления пользователей в БД
@@ -75,21 +107,6 @@ class UserManager:
         except Exception as e:
             print("---------- ERROR ----------")
             print(f"----- {e} add_new_user -----")
-
-    def check_user_in_database(self, user_id):
-        __connect = sqlite3.connect(self.name_db)
-        __cursor = __connect.cursor()
-
-        __cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
-        result = __cursor.fetchone()
-
-        __cursor.close()
-        __connect.close()
-
-        if result:
-            return True
-        else:
-            return False
 
     def find_users_in_db(self, id_user):
         """
@@ -160,13 +177,49 @@ class UserManager:
 
         return all_users
 
-    def check_exist_table(self, name_table):
+
+class EventsDatabase(ManagerDataBase):
+    def add_event(self, event_name, discipline, date, protocol_link):
+        table_name_events = 'events'
+
         __connect = sqlite3.connect(self.name_db)
         __cursor = __connect.cursor()
-        __cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{name_table}'")
-        table_exists = __cursor.fetchone() is not None
 
+        check_table = self.check_exist_table(table_name_events)
+        if check_table is False:
+            __cursor.execute(f'''
+                    CREATE TABLE IF NOT EXISTS {table_name_events} (
+                        id INTEGER PRIMARY KEY,
+                        event_name TEXT,
+                        discipline TEXT,
+                        date TEXT,
+                        protocol_link TEXT
+                    )
+                ''')
+            __connect.commit()
+
+        print(event_name, discipline, date, protocol_link)
+
+        __cursor.execute(f'''
+            INSERT INTO {table_name_events} (event_name, discipline, date, protocol_link)
+            VALUES (?, ?, ?, ?)
+        ''', (event_name, discipline, date, protocol_link))
         __connect.commit()
+
+        __cursor.close()
         __connect.close()
 
-        return table_exists
+    def view_events(self):
+        check_table = self.check_exist_table('events')
+        if check_table:
+            __connect = sqlite3.connect(self.name_db)
+            __cursor = __connect.cursor()
+
+            __cursor.execute("SELECT * FROM events")
+            all_users = __cursor.fetchall()
+
+            for i in all_users:
+                print(i)
+
+            __cursor.close()
+            __connect.close()

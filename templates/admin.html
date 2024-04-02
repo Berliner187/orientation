@@ -10,6 +10,17 @@
     {% set title = 'Sportify - Панель администратора' %}
     {% include 'navbar.html' %}
 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="flash-message {{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+
     <section class="event-form">
         <div class="container">
             <h2>Добавление нового события</h2>
@@ -34,6 +45,16 @@
             </form>
         </div>
     </section>
+
+    <script>
+        var flashMessages = document.querySelectorAll('.flash-message');
+
+        flashMessages.forEach(function(message) {
+            setTimeout(function() {
+                message.style.display = 'none';
+            }, 5000);
+        });
+    </script>
     
 </body>
 </html>
