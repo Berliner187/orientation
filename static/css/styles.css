@@ -157,3 +157,52 @@ footer {
 .flash-error {
     background-color: #ff3860;
 }
+
+
+/* Таблица участников */
+.uber-table {
+    margin: 0 auto;
+    margin-top: 100px;
+    width: 65%;
+    border-collapse: collapse;
+}
+
+.uber-table h2 {
+    text-align: center;
+    width: fit-content;
+}
+
+/* Стили для заголовков таблицы */
+.uber-table th {
+    background-color: #f8f9fa;
+    color: #000;
+    padding: 10px;
+    text-align: left; /* Выравнивание текста по левому краю */
+    border-bottom: 2px solid #dee2e6; /* Горизонтальная линия под заголовком */
+}
+
+/* Стили для строк таблицы (четные) */
+.uber-table tbody tr:nth-child(even) {
+    background-color: #f1f3f5;
+}
+
+/* Стили для строк таблицы (нечетные) */
+.uber-table tbody tr:nth-child(odd) {
+    background-color: #fff;
+}
+
+/* Стили для ячеек таблицы */
+.uber-table td {
+    padding: 10px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Стили для ячеек таблицы в первом столбце */
+.uber-table td:first-child {
+    border-left: 2px solid #dee2e6;
+}
+
+/* Стили для ячеек таблицы в последнем столбце */
+.uber-table td:last-child {
+    border-right: 2px solid #dee2e6;
+}

@@ -140,7 +140,7 @@ class UserManager(ManagerDataBase):
             else:
                 return False
 
-    def load_all_users(self):
+    def load_all_users(self, table_name, display=False):
         """
             Display data about users from database
             Only print
@@ -150,16 +150,18 @@ class UserManager(ManagerDataBase):
         connect = sqlite3.connect(self.name_db)
         cursor = connect.cursor()
 
-        cursor.execute("SELECT * FROM users")
+        cursor.execute(f"SELECT * FROM {table_name}")
         all_users = cursor.fetchall()
 
-        for user in all_users:
-            for i in range(len(user)):
-                if i == len(user) - 1:
-                    print(user[i], end="")
-                else:
-                    print(user[i], end=" --- ")
-            print()
+        if display:
+            for user in all_users:
+                for i in range(len(user)):
+                    if i == len(user) - 1:
+                        print(user[i], end="")
+                    else:
+                        print(user[i], end=" --- ")
+                print()
+        return all_users
 
     def read_users_from_db(self, table):
         """
@@ -198,8 +200,6 @@ class EventsDatabase(ManagerDataBase):
                 ''')
             __connect.commit()
 
-        print(event_name, discipline, date, protocol_link)
-
         __cursor.execute(f'''
             INSERT INTO {table_name_events} (event_name, discipline, date, protocol_link)
             VALUES (?, ?, ?, ?)
@@ -216,10 +216,9 @@ class EventsDatabase(ManagerDataBase):
             __cursor = __connect.cursor()
 
             __cursor.execute("SELECT * FROM events")
-            all_users = __cursor.fetchall()
-
-            for i in all_users:
-                print(i)
+            all_events = __cursor.fetchall()
 
             __cursor.close()
             __connect.close()
+
+            return all_events
