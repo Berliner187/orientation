@@ -174,11 +174,12 @@ footer {
 
 /* Стили для заголовков таблицы */
 .uber-table th {
-    background-color: #f8f9fa;
+    background-color: #e8eef3;
     color: #000;
-    padding: 10px;
+    padding: 20px;
     text-align: left; /* Выравнивание текста по левому краю */
-    border-bottom: 2px solid #dee2e6; /* Горизонтальная линия под заголовком */
+    border-bottom: 2px solid #dee2e6;
+    border-radius: 12px;
 }
 
 /* Стили для строк таблицы (четные) */
@@ -195,14 +196,15 @@ footer {
 .uber-table td {
     padding: 10px;
     border-bottom: 1px solid #dee2e6;
+    border-radius: 12px;
 }
 
 /* Стили для ячеек таблицы в первом столбце */
 .uber-table td:first-child {
-    border-left: 2px solid #dee2e6;
+    border-left: 2px solid #f0f2f4;
 }
 
 /* Стили для ячеек таблицы в последнем столбце */
 .uber-table td:last-child {
-    border-right: 2px solid #dee2e6;
+    border-right: 2px solid #f0f2f4;
 }
