@@ -1,8 +1,10 @@
 import os
 import sqlite3
 
+from time import time
 
-__version__ = '0.1.0'
+
+__version__ = '0.2.0'
 
 
 USERS_DB = 'competitions.db'
@@ -222,3 +224,74 @@ class EventsDatabase(ManagerDataBase):
             __connect.close()
 
             return all_events
+
+
+class RangsManager(ManagerDataBase):
+    def add_rang(self, rang_name, count):
+        table_name_events = 'rangs'
+
+        __connect = sqlite3.connect(self.name_db)
+        __cursor = __connect.cursor()
+
+        check_table = self.check_exist_table(table_name_events)
+        table_name = rang_name.replace(" ", "") + str(round(time()))
+        if check_table is False:
+            __cursor.execute(f'''
+                    CREATE TABLE IF NOT EXISTS {table_name_events} (
+                        id INTEGER PRIMARY KEY,
+                        rang_name TEXT,
+                        count INTEGER,
+                        table_name TEXT
+                    )
+                ''')
+            __connect.commit()
+
+        __cursor.execute(f'''
+            INSERT INTO {table_name_events} (rang_name, count, table_name)
+            VALUES (?, ?, ?)
+        ''', (rang_name, count, table_name))
+        __connect.commit()
+
+        __cursor.close()
+        __connect.close()
+
+    def view_rangs(self):
+        check_table = self.check_exist_table('rangs')
+        if check_table:
+            __connect = sqlite3.connect(self.name_db)
+            __cursor = __connect.cursor()
+
+            __cursor.execute("SELECT id, rang_name FROM rangs")
+            all_rangs = __cursor.fetchall()
+
+            __cursor.close()
+            __connect.close()
+
+            return all_rangs
+
+    def get_rang_by_id(self, id):
+        check_table = self.check_exist_table('rangs')
+        if check_table:
+            __connect = sqlite3.connect(self.name_db)
+            __cursor = __connect.cursor()
+
+            __cursor.execute("SELECT rang_name, count FROM rangs WHERE id=?", (id,))
+            all_rangs = __cursor.fetchall()
+
+            __cursor.close()
+            __connect.close()
+
+            return all_rangs
+
+    def update_rang(self, id, name, count) -> None:
+        print('POOKKOKSODKSOCK')
+        check_table = self.check_exist_table('rangs')
+        if check_table:
+            __connect = sqlite3.connect(self.name_db)
+            __cursor = __connect.cursor()
+
+            __cursor.execute("UPDATE rangs SET rang_name=?, count=? WHERE id=?", (name, count, id))
+            __connect.commit()
+
+            __cursor.close()
+            __connect.close()

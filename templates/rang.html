@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <title>Ранг</title>
+</head>
+<body>
+    {% set title = 'Sportify - Панель администратора' %}
+    {% include 'navbar.html' %}
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="flash-message {{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <section class="event-form">
+        <div class="container">
+            <h2>Ранг</h2>
+            <form action="/admin/rang/{{id}}/update" method="post">
+                <div class="form-group">
+                    <label for="rang-name">Название:</label>
+                    <input type="text" value="{{ rang[0][0] }}" id="rang-name" name="rang-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="count">Кол-во соревнований в зачет:</label>
+                    <input type="number" value="{{rang[0][1]}}" id="count" name="count" required>
+                </div>
+                <button type="submit">Обновить ранг</button>
+
+                <div class="form-group">
+                    <label for="protocol">Соревнование:</label>
+                    <input type="text" id="protocol" name="protocol">
+                    <button>Добавить</button>
+                </div>
+            </form>
+        </div>
+    </section>
+</body>
+</html>

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sportify - Admin Panel</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <title>Создать ранг</title>
 </head>
 <body>
     {% set title = 'Sportify - Панель администратора' %}
@@ -22,21 +22,20 @@
 
     <section class="event-form">
         <div class="container">
-            <a href="/admin/rangs" class="standard-button">Ранги</a>
-            <a href="/admin/create_comp" class="standard-button">Создать соревнование</a>
-            <a href="/admin/create_rang" class="standard-button">Создать ранг</a>
+            <h2>Добавление нового ранга</h2>
+            <form action="#" method="post">
+                <div class="form-group">
+                    <label for="rang-name">Название:</label>
+                    <input type="text" id="rang-name" name="rang-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="count">Кол-во соревнований в зачет:</label>
+                    <input type="number" id="count" name="count" required>
+                </div>
+                <button type="submit">Создать ранг</button>
+
+            </form>
         </div>
     </section>
-
-    <script>
-        var flashMessages = document.querySelectorAll('.flash-message');
-
-        flashMessages.forEach(function(message) {
-            setTimeout(function() {
-                message.style.display = 'none';
-            }, 3000);
-        });
-    </script>
-    
 </body>
 </html>

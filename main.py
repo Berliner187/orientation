@@ -3,13 +3,13 @@ from flask import Flask, render_template, Blueprint, request, flash, redirect, u
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 from flask_login import UserMixin
 
-from manager_db import EventsDatabase, UserManager, USERS_DB
+from manager_db import EventsDatabase, UserManager, USERS_DB, RangsManager
 from competition_results import ManageResults
 
 from time import sleep
 
 
-__version__ = '0.2.1'
+__version__ = '0.3.0'
 
 
 app = Flask(__name__)
@@ -31,7 +31,8 @@ class User(UserMixin):
         self.password_hash = password_hash
         self.is_admin = is_admin
 
-users = [
+
+users_init = [
     User(1, 'admin', 'admin_password_hash', is_admin=True),
     User(2, 'user', 'user_password_hash')
 ]
@@ -39,14 +40,14 @@ users = [
 
 @login_manager.user_loader
 def load_user(user_id):
-    for user in users:
+    for user in users_init:
         if user.id == user_id:
             return user
     return None
 
 
 def is_admin(username, password):
-    for user in users:
+    for user in users_init:
         if user.username == username and user.password_hash == password and user.is_admin:
             return True
     return False
@@ -58,7 +59,7 @@ def login():
         username = request.form['username']
         password = request.form['password']
         if is_admin(username, password):
-            user = next((user for user in users if user.username == username), None)
+            user = next((user for user in users_init if user.username == username), None)
             login_user(user)
             return redirect(url_for('admin'))
         else:
@@ -94,24 +95,14 @@ def index():
     return render_template('index.html', users=all_users, events=all_events)
 
 
-@app.route('/admin', methods=['GET', 'POST'])
-@login_required
+@app.route('/admin')
 def admin():
-    if not current_user.is_admin:
-        flash('Недостаточно привилегий для доступа к этой странице', 'error')
-        return redirect(url_for('/'))
+    return render_template('admin.html')
 
+
+@app.route('/admin/create_comp', methods=['GET', 'POST'])
+def create_comp():
     events_database = EventsDatabase(USERS_DB)
-    all_events = events_database.view_events()
-
-    try:
-        users_manager = UserManager(USERS_DB)
-        for event in all_events:
-            print(event)
-            all_users = users_manager.load_all_users(event[1])
-
-    except Exception as e:
-        flash(f'Ошибка чтения данных из БД :(\n\n{e}', 'flash-error')
 
     if request.method == 'POST':
         try:
@@ -140,7 +131,65 @@ def admin():
 
         return redirect(url_for('admin'))
 
-    return render_template('admin.html')
+    return render_template('create_comp.html')
+
+
+@app.route('/admin/create_rang', methods=['GET', 'POST'])
+def create_rang():
+    rangs_database = RangsManager(USERS_DB)
+
+    if request.method == 'POST':
+        rang_name = request.form['rang-name']
+        count = request.form['count']
+
+        print("Отправленные данные:")
+        print(rang_name, count)
+
+        try:
+            rangs_database.add_rang(rang_name, count)
+            flash('Данные сохранены!', 'flash-success')
+        except Exception as e:
+            flash(f'Ошибка сохранения :(\n\n{e}', 'flash-error')
+
+        return redirect(url_for('admin'))
+
+    return render_template('create_rang.html')
+
+
+@app.route('/admin/rangs', methods=['GET', 'POST'])
+def rangs():
+    rangs_manager = RangsManager(USERS_DB)
+    all_rangs = rangs_manager.view_rangs()
+    return render_template("rangs.html", rangs_list=all_rangs)
+
+
+@app.route('/admin/rang/<int:rang_id>/update', methods=['GET', 'POST'])
+def rang_update(rang_id):
+
+    if request.method == 'POST':
+        rangs_manager = RangsManager(USERS_DB)
+
+        rang_name = request.form['rang-name']
+        count = request.form['count']
+
+        print("Отправленные данные:")
+        print(rang_name, count)
+
+        try:
+            rangs_manager.update_rang(rang_id, rang_name, count)
+            flash('Данные сохранены!', 'flash-success')
+        except Exception as e:
+            flash(f'Ошибка сохранения :(\n\n{e}', 'flash-error')
+        return redirect(f'/admin/rang/{rang_id}')
+
+    return render_template("rang.html")
+
+
+@app.route('/admin/rang/<int:rang_id>', methods=['GET', 'POST'])
+def view_rang_page(rang_id):
+    rangs_manager = RangsManager(USERS_DB)
+    elem_by_id = rangs_manager.get_rang_by_id(rang_id)
+    return render_template("rang.html", rang=elem_by_id, id=rang_id)
 
 
 app.register_blueprint(admin_bp)
