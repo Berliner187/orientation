@@ -33,13 +33,15 @@
                     <input type="number" value="{{rang[0][1]}}" id="count" name="count" required>
                 </div>
                 <button type="submit">Обновить ранг</button>
-
+            </form>
+            <form action="/admin/rang/{{id}}/add" method="post">        
                 <div class="form-group">
                     <label for="protocol">Соревнование:</label>
                     <input type="text" id="protocol" name="protocol">
                     <button>Добавить</button>
                 </div>
             </form>
+
         </div>
     </section>
 </body>

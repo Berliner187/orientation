@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ранг федерации СО ТО</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='img/sportify-logo-black-rus.png') }}" type="image/x-icon">
+</head>
+<body>
+    {% set title = 'Проект Тимофея Белова' %} {% include 'navbar.html' %}
+    <section class="rang">
+    <h2 class="rang_view_header">{{rang_name}}</h2>
+    <h3>Этапы:</h3>
+            {% if events %}
+                {% for event in events %}
+                    <tr>
+                        <td>{{ event[1] }} |</td>
+                        <td>Дата: {{ event[0] }} |</td>
+                        <td>Дисциплина: {{ event[2] }}</td>
+                        <td><a href="{{event[3]}}" target="_blank">Протокол</a></td>
+                    </tr>
+                    <br/>
+                {% endfor %}
+            {% endif %}
+    {% set group = namespace(name="") %}
+    {% for item in table_data %}
+        {% if group.name != item[4] %}
+            {% set group.name = item[4] %}
+                </tbody>
+            </table>
+            <h3>{{item[4]}}</h3>
+            <table class="uber-table">
+                <thead>
+                    <tr>
+                        <th>Фамилия</th>
+                        <th>Имя</th>
+                        <th>Команда</th>
+                        <th>Сумма очков</th>
+                        {% for i in range(1, event_count+1) %}
+                            <th>{{i}}.Место</th>
+                            <th>{{i}}.Очки</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+        {% endif %}
+        {% if item[item|length - 1] != 0 %}
+             <tr>
+                <td>{{ item[1] }}</td>
+                <td>{{ item[2] }}</td>
+                <td>{{ item[3] }}</td>
+                <td>{{ item[item|length - 1] }}</td>
+                {% for i in range(5, item|length - 1) %}
+                    <td>{{item[i]}}</td>
+                {% endfor %}
+            </tr>
+        {% endif %}
+    {% endfor %}
+</tbody>
+</table>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Sportify.</p>
+        </div>
+    </footer>
+</body>
+</html>
