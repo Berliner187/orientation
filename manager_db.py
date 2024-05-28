@@ -80,7 +80,7 @@ class UserManager(ManagerDataBase):
                         team TEXT
                     )
                 ''')
-            __connect.commit()
+            _connect.commit()
 
         _c.close()
         _connect.close()
@@ -197,7 +197,7 @@ class UserManager(ManagerDataBase):
         param_str = param_str[:-1]
         connect = sqlite3.connect(self.name_db)
         cursor = connect.cursor()
-        cursor.execute(f"SELECT firstname, lastname, group_name, team,eventID, personID, place, score FROM results LEFT JOIN persons ON results.personID = persons.ID where eventID IN ({param_str}) ORDER by personID, eventID")
+        cursor.execute(f"SELECT firstname, lastname, group_name, team, eventID, personID, place, score FROM results LEFT JOIN persons ON results.personID = persons.ID where eventID IN ({param_str}) ORDER by personID, eventID")
         return cursor.fetchall()
         
 

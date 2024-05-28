@@ -178,7 +178,7 @@ def view_rang_page(rang_id):
     if (len(eventIDs) < 1):
         return redirect(url_for('index'))
     table_data = users_manager.get_users_with_events(eventIDs=eventIDs)
-    table_data = preparation_data_to_rang_view(table_data, count)
+    table_data = preparation_data_to_rang_view(table_data, count, eventIDs)
     return render_template("rang_view.html", events=events, table_data=table_data, event_count=len(eventIDs), rang_name = name, count=count)
 
 @application.route('/admin_login', methods=['GET', 'POST'])
@@ -204,29 +204,44 @@ def admin_logout():
     session.pop('user_id', None)
     return redirect(url_for('index'))
 
-def preparation_data_to_rang_view(table_data, count):
+def preparation_data_to_rang_view(table_data, count, eventIDs):
     data = []
     person_data = [0, [], '', '', '', '', 0]
     scores = []
     personID = 0
+    events_counter = 0
     for item in table_data:
         if (item[5] != personID and personID  != 0 ):
+            while len(scores) < len(eventIDs):
+                scores.append(0)
+                person_data.append(0)
+                person_data.append(0)
             if (len(scores) > count):
                 person_data[1] = find_scores_not_accounting(person_data[3], scores.copy(), count)
                 person_data[6] = get_sum_scores(scores, person_data[1])
+            
             data.append(person_data)
             person_data = [0, [], '', '', '', '', 0]
             scores = []
+            events_counter = 0
         personID = item[5]
         person_data[0] = personID
         person_data[2] = item[0]
         person_data[3] = item[1]
         person_data[4] = item[2]
         person_data[5] = item[3]
-        print(person_data)
-        person_data.append(item[6])
-        scores.append(item[7])
-        person_data.append(item[7]) 
+        while (eventIDs[events_counter] < item[4]):
+            person_data.append(0)
+            scores.append(0)
+            person_data.append(0)
+            events_counter += 1
+        if (item[4] == eventIDs[events_counter]):
+            person_data.append(item[6])
+            scores.append(item[7])
+            person_data.append(item[7]) 
+            events_counter += 1
+
+        
     if (len(scores) > count):
         person_data[1] = find_scores_not_accounting(person_data[3], scores.copy(), count)  
         person_data[6] = get_sum_scores(scores, person_data[1]) 
@@ -234,6 +249,7 @@ def preparation_data_to_rang_view(table_data, count):
     data.sort(key=lambda data:(data[6]), reverse=True)
     data.sort(key=lambda data:(data[4]))
     return data
+
 def find_scores_not_accounting(a, scores, count):
     scores_not_sort = scores.copy()
     scores.sort()
