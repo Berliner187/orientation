@@ -226,8 +226,8 @@ def preparation_data_to_rang_view(table_data, count, eventIDs):
             events_counter = 0
         personID = item[5]
         person_data[0] = personID
-        person_data[2] = item[0]
-        person_data[3] = item[1]
+        person_data[2] = item[1]
+        person_data[3] = item[0]
         person_data[4] = item[2]
         person_data[5] = item[3]
         while (eventIDs[events_counter] < item[4]):
