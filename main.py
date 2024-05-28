@@ -223,6 +223,7 @@ def preparation_data_to_rang_view(table_data, count):
         person_data[3] = item[1]
         person_data[4] = item[2]
         person_data[5] = item[3]
+        print(person_data)
         person_data.append(item[6])
         scores.append(item[7])
         person_data.append(item[7]) 
@@ -230,7 +231,8 @@ def preparation_data_to_rang_view(table_data, count):
         person_data[1] = find_scores_not_accounting(person_data[3], scores.copy(), count)  
         person_data[6] = get_sum_scores(scores, person_data[1]) 
     data.append(person_data)
-    data.sort(key=lambda data:(data[4], data[5]))
+    data.sort(key=lambda data:(data[6]), reverse=True)
+    data.sort(key=lambda data:(data[4]))
     return data
 def find_scores_not_accounting(a, scores, count):
     scores_not_sort = scores.copy()
