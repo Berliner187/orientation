@@ -13,6 +13,10 @@ body {
     padding: 0;
 }
 
+.bg-green{
+    background-color: rgb(109, 172, 109);
+}
+
 h2, h3{
     text-align: center;
 }

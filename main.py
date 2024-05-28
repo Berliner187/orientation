@@ -31,7 +31,6 @@ def index():
         pass
 
     # Логика обработки рангов
-    print(all_events)
     return render_template('index.html', users=all_users, rangs=all_events)
 
 
@@ -67,6 +66,7 @@ def create_comp():
                 manage_results.write_down_names_of_participants(event_id)
                 flash('Результаты сохранены!', 'flash-success')
             except Exception as e:
+                print(e)
                 flash(f'Ошибка сохранения результатов :(\n\n{e}', 'flash-error')
 
         except Exception as e:
@@ -167,7 +167,9 @@ def view_rang_page_settings(rang_id):
 def view_rang_page(rang_id):
     rangs_manager = RangsManager(USERS_DB)
     events = rangs_manager.get_rang_events(rang_id)
-    name= rangs_manager.get_rang_name_by_id(rang_id)
+    name = rangs_manager.get_rang_name_by_id(rang_id)
+    count = name[1]
+    name = name[0]
     eventIDs = []
     for event in events:
         eventIDs.append(event[4])
@@ -176,7 +178,8 @@ def view_rang_page(rang_id):
     if (len(eventIDs) < 1):
         return redirect(url_for('index'))
     table_data = users_manager.get_users_with_events(eventIDs=eventIDs)
-    return render_template("rang_view.html", events=events, table_data=table_data, event_count=len(eventIDs), rang_name = name)
+    table_data = preparation_data_to_rang_view(table_data, count)
+    return render_template("rang_view.html", events=events, table_data=table_data, event_count=len(eventIDs), rang_name = name, count=count)
 
 @application.route('/admin_login', methods=['GET', 'POST'])
 def admin_login():
@@ -201,6 +204,55 @@ def admin_logout():
     session.pop('user_id', None)
     return redirect(url_for('index'))
 
+def preparation_data_to_rang_view(table_data, count):
+    data = []
+    person_data = [0, [], '', '', '', '', 0]
+    scores = []
+    personID = 0
+    for item in table_data:
+        if (item[5] != personID and personID  != 0 ):
+            if (len(scores) > count):
+                person_data[1] = find_scores_not_accounting(person_data[3], scores.copy(), count)
+                person_data[6] = get_sum_scores(scores, person_data[1])
+            data.append(person_data)
+            person_data = [0, [], '', '', '', '', 0]
+            scores = []
+        personID = item[5]
+        person_data[0] = personID
+        person_data[2] = item[0]
+        person_data[3] = item[1]
+        person_data[4] = item[2]
+        person_data[5] = item[3]
+        person_data.append(item[6])
+        scores.append(item[7])
+        person_data.append(item[7]) 
+    if (len(scores) > count):
+        person_data[1] = find_scores_not_accounting(person_data[3], scores.copy(), count)  
+        person_data[6] = get_sum_scores(scores, person_data[1]) 
+    data.append(person_data)
+    data.sort(key=lambda data:(data[4], data[5]))
+    return data
+def find_scores_not_accounting(a, scores, count):
+    scores_not_sort = scores.copy()
+    scores.sort()
+    find_indexes = []
+    for i in range(0,len(scores)-count):
+        index = scores_not_sort.index(scores[i])
+        find_indexes.append(index)
+        scores_not_sort[index] = ''
+        scores[i] = ''
+    find_indexes.sort()
+    return find_indexes   
+
+def  get_sum_scores(scores, not_accountig):
+    sum = 0
+    counter = 0
+    for i in range(0, len(scores)):
+        if (counter < len(not_accountig) and i == not_accountig[counter]):
+            counter += 1
+        else:
+            sum += int(scores[i])   
+    return sum
 
 from manager_db import *
 from competition_results import *

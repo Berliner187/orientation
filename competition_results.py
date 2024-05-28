@@ -103,6 +103,5 @@ class ManageResults:
                 else:
                     user_id = user_manager.add_new_user(
                         lastname=user_cell[2], firstname=user_cell[3],
-                        team=user_cell[4], group_name=user_cell[0], event_id=event_id, place=user_cell[1], score=user_cell[5]
-                    )
+                        team=user_cell[4], group_name=user_cell[0])
                     user_manager.add_result_to_user(event_id=event_id, user_id=user_id, place=user_cell[1], score=user_cell[5])

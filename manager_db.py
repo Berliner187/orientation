@@ -34,6 +34,7 @@ class ManagerDataBase:
     def __init__(self, name_db):
         self.name_db = name_db
 
+
     def check_exist_table(self, name_table):
         __connect = sqlite3.connect(self.name_db)
         __cursor = __connect.cursor()
@@ -62,11 +63,34 @@ class ManagerDataBase:
             return False
 
 
+
 class UserManager(ManagerDataBase):
-    def add_new_user(self, lastname, firstname, team, group_name, event_id, place, score):
+    def create_database(self):
+        _connect = sqlite3.connect(self.name_db)
+        _c = _connect.cursor()
+        check_table = self.check_exist_table("persons")
+        if check_table is False:
+            _c.execute(f'''
+                    CREATE TABLE IF NOT EXISTS persons (
+                        id INTEGER PRIMARY KEY,
+                        firstname TEXT,
+                        lastname TEXT, 
+                        year_birth INTEGER,
+                        group_name TEXT,
+                        team TEXT
+                    )
+                ''')
+            __connect.commit()
+
+        _c.close()
+        _connect.close()
+    def add_new_user(self, lastname, firstname, team, group_name):
         """
             Алгоритм добавления пользователей в БД
         """
+        check_table = self.check_exist_table("persons")
+        if check_table is False:
+            self.create_database()
         try:
             global name_fields_for_users
             insert_fields, place_items = "", ""
@@ -88,7 +112,7 @@ class UserManager(ManagerDataBase):
 
 
 
-            _c.execute(f'INSERT INTO PERSONS_DATA ({insert_fields}) VALUES ({place_items})',
+            _c.execute(f'INSERT INTO persons ({insert_fields}) VALUES ({place_items})',
                        ( lastname, firstname, team, group_name))
             _connect.commit()
             user_id = _c.lastrowid
@@ -104,7 +128,7 @@ class UserManager(ManagerDataBase):
     def add_result_to_user(self, event_id, user_id, place, score):
         _connect = sqlite3.connect(self.name_db)
         _c = _connect.cursor()
-        _c.execute(f"UPDATE PERSONS_DATA SET event{event_id}PLACE = ?, event{event_id}SCORE = ? WHERE id = ?", (place, score, user_id))
+        _c.execute(f"INSERT INTO results (eventID, personID, place, score) VALUES (?, ?, ?, ?)", (event_id, user_id, place, score))
         _connect.commit()
         _c.close()
         _connect.close()
@@ -115,8 +139,11 @@ class UserManager(ManagerDataBase):
             id_user - идентификатор пользователя.
             user_id или fullname.
         """
+        check_table = self.check_exist_table("persons")
+        if check_table is False:
+            self.create_database()
         __cursor = sqlite3.connect(self.name_db).cursor()
-        __cursor.execute("SELECT id FROM PERSONS_DATA WHERE firstname = ? AND lastname = ? AND group_name = ?", (firstname, lastname, group))
+        __cursor.execute("SELECT id FROM persons WHERE firstname = ? AND lastname = ? AND group_name = ?", (firstname, lastname, group))
         find_users = __cursor.fetchone()
 
         if find_users is None:
@@ -165,15 +192,12 @@ class UserManager(ManagerDataBase):
     
     def get_users_with_events(self, eventIDs):
         param_str = ""
-        sum_str = ""
         for item in eventIDs:
-            param_str += f"IFNULL(event{item}PLACE,0), IFNULL(event{item}SCORE,0),"
-            sum_str += f"IFNULL(event{item}SCORE,0)+"
+            param_str += str(item) + ","
         param_str = param_str[:-1]
-        sum_str = sum_str[:-1]
         connect = sqlite3.connect(self.name_db)
         cursor = connect.cursor()
-        cursor.execute(f"SELECT id, lastname, firstname, team, group_name, {param_str}, {sum_str} as Sum FROM PERSONS_DATA order by  group_name, Sum DESC")
+        cursor.execute(f"SELECT firstname, lastname, group_name, team,eventID, personID, place, score FROM results LEFT JOIN persons ON results.personID = persons.ID where eventID IN ({param_str}) ORDER by personID, eventID")
         return cursor.fetchall()
         
 
@@ -185,15 +209,15 @@ class EventsDatabase(ManagerDataBase):
         __connect = sqlite3.connect(self.name_db)
         __cursor = __connect.cursor()
         event_id = 0
-        check_table = self.check_exist_table("PERSONS_DATA")
+        check_table = self.check_exist_table("results")
         if check_table is False:
             __cursor.execute(f'''
-                    CREATE TABLE IF NOT EXISTS PERSONS_DATA (
+                    CREATE TABLE IF NOT EXISTS results (
                         id INTEGER PRIMARY KEY,
-                        lastname TEXT,
-                        firstname TEXT,
-                        team TEXT,
-                        group_name TEXT
+                        eventID INTEGER,
+                        personID INTEGER,
+                        place INTEGER,
+                        score INTEGER
                     )
                 ''')
             __connect.commit()
@@ -217,11 +241,6 @@ class EventsDatabase(ManagerDataBase):
         ''', (event_name, discipline, date, protocol_link))
         __connect.commit()
         event_id = __cursor.lastrowid
-        __cursor.execute(f"ALTER TABLE PERSONS_DATA ADD COLUMN event{event_id}PLACE INTEGER")
-        __connect.commit()
-        __cursor.execute(f"ALTER TABLE PERSONS_DATA ADD COLUMN event{event_id}SCORE INTEGER")
-        __connect.commit()
-
         __cursor.close()
         __connect.close()
         return event_id
@@ -260,6 +279,19 @@ class EventsDatabase(ManagerDataBase):
 
 
 class RangsManager(ManagerDataBase):
+    def create_rang_competition_table(self):
+        __connect = sqlite3.connect(self.name_db)
+        __cursor = __connect.cursor()
+        __cursor.execute(f'''
+                    CREATE TABLE IF NOT EXISTS RANGS_COMPETITIONS (
+                        rangID INTEGER,
+                        competitionID INTEGER
+                    )
+                ''')
+        print("success")
+        __connect.commit()
+        __cursor.close()
+        __connect.close()
     def add_rang(self, rang_name, count):
         table_name_events = 'rangs'
 
@@ -283,20 +315,6 @@ class RangsManager(ManagerDataBase):
         ''', (rang_name, count))
         __connect.commit()
 
-        __cursor.close()
-        __connect.close()
-
-    def create_rang_competition_table(self):
-        __connect = sqlite3.connect(self.name_db)
-        __cursor = __connect.cursor()
-        __cursor.execute(f'''
-                    CREATE TABLE IF NOT EXISTS RANGS_COMPETITIONS (
-                        rangID INTEGER,
-                        competitionID INTEGER
-                    )
-                ''')
-        print("success")
-        __connect.commit()
         __cursor.close()
         __connect.close()
 
@@ -346,20 +364,6 @@ class RangsManager(ManagerDataBase):
         __connect.commit()
         __cursor.close()
         __connect.close()
-
-    def view_rang(self):
-        check_table = self.check_exist_table('rangs')
-        if check_table:
-            __connect = sqlite3.connect(self.name_db)
-            __cursor = __connect.cursor()
-
-            __cursor.execute("SELECT id, rang_name FROM rangs")
-            all_events = __cursor.fetchall()
-
-            __cursor.close()
-            __connect.close()
-
-            return all_events
         
     def get_rang_events(self, rang_id):
         __connect = sqlite3.connect(self.name_db)
@@ -377,12 +381,12 @@ class RangsManager(ManagerDataBase):
     def get_rang_name_by_id(self, rang_id):
         __connect = sqlite3.connect(self.name_db)
         __cursor = __connect.cursor()
-        __cursor.execute(f"SELECT rang_name FROM rangs WHERE ID=?",(rang_id,))
+        __cursor.execute(f"SELECT rang_name, count FROM rangs WHERE ID=?",(rang_id,))
         name = __cursor.fetchone()
         if name is None:
             return ""
         else:
-            return name[0]
+            return name
         
 
 class LoginManager(ManagerDataBase):
@@ -390,6 +394,8 @@ class LoginManager(ManagerDataBase):
         __connect = sqlite3.connect(self.name_db)
         __cursor = __connect.cursor()
         __cursor.execute(f"CREATE TABLE IF NOT EXISTS login_data (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT)")
+        __connect.commit()
+        self.create_user('admin', 'adminarztop43')
         __connect.commit()
         __connect.close()
 
