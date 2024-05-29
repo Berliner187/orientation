@@ -6,7 +6,7 @@
     <meta http-equiv="cache-control" content="no-cache" />
     <meta http-equiv="expires" content="timestamp">
     <title>Ранг федерации СО ТО</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=0.0.1">
     <link rel="icon" href="{{ url_for('static', filename='img/sportify-logo-black-rus.png') }}" type="image/x-icon">
 </head>
 <body>
@@ -15,13 +15,16 @@
     <h2 class="rang_view_header">{{rang_name}}</h2>
     <h2 class="rang_view_header">Этапов в зачёт {{count}} | выделено зелёным</h2>
     <h3>Этапы:</h3>
+            {% set counter_1 = namespace(counter = 1) %}
             {% if events %}
                 {% for event in events %}
                     <tr>
+                        <td>{{counter_1.counter}}.</td>
                         <td>{{ event[1] }} |</td>
                         <td>Дата: {{ event[0] }} |</td>
                         <td>Дисциплина: {{ event[2] }}</td>
                         <td><a href="{{event[3]}}" target="_blank">Протокол</a></td>
+                        {% set counter_1.counter = counter_1.counter + 1 %}
                     </tr>
                     <br/>
                 {% endfor %}
@@ -40,10 +43,11 @@
                         <th>Фамилия</th>
                         <th>Имя</th>
                         <th>Команда</th>
-                        <th>Сумма очков</th>
+                        <th>Очки</th>
                         {% for i in range(1, event_count+1) %}
-                            <th>{{i}}.Место</th>
-                            <th>{{i}}.Очки</th>
+                            <!-- <th class="results-table left-border">{{i}}.Место</th>
+                            <th class="results-table">{{i}}.Очки</th> -->
+                            <th class="results-header left-border right-border" colspan="2">{{i}}</th>
                         {% endfor %}
                     </tr>
                 </thead>
@@ -54,23 +58,25 @@
              <tr>
                 <td>{{ item[2] }}</td>
                 <td>{{ item[3] }}</td>
-                <td>{{ item[5] }}</td>
-                <td>{{ item[6] }}</td>
-                {% set counter = namespace(count = 0, param = "bg-green", i = 0, add = 0) %}
+                <td class="team">{{ item[5] }}</td>
+                <td class="table-sum">{{ item[6] }}</td>
+                {% set counter = namespace(count = 0, param = "bg-green", i = 0, add = 0, border = "left-border") %}
                 {% for i in range(7, item|length)%}
                     {% if indexes.index_array|length > 0 and indexes.index_array[counter.count] == counter.i %}
                         {% set counter.param = "" %}
                         {% set counter.add = counter.add + 1 %}
                     {% endif %}
-                    <td class="{{counter.param}}">{{item[i]}}</td>
+                    <td class="{{counter.param}} results-table {{counter.border}}">{{item[i]}}</td>
+                    {% set counter.border = "" %}
                     {% if i % 2 == 0 %}
                         {% set counter.i = counter.i + 1 %}
+                        {% set counter.border = "left-border" %}
                     {% endif %}
                     {% if counter.add == 2 %}
-                            {% set counter.count = counter.count + 1 %}
-                            {% set counter.add = 0 %}
-                            {% set counter.param = "bg-green" %}
-                        {% endif %}
+                        {% set counter.count = counter.count + 1 %}
+                        {% set counter.add = 0 %}
+                        {% set counter.param = "bg-green" %}
+                    {% endif %}
                 {% endfor %}
             </tr>
         {% endif %}

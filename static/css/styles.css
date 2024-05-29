@@ -36,6 +36,37 @@ h2, h3{
     font-size: 30px;
 }
 
+.results-table{
+    font-size: 12px;
+    text-align: center;
+    padding: 10px !important;
+    font-weight: bold;
+}
+
+.results-header{
+    font-size: 15px;
+    text-align: center;
+    padding: 10px !important;
+    font-weight: bold;
+}
+
+.table-sum{
+    background-color: #5bc0de;
+    text-align: center;
+}
+
+.team{
+    text-wrap: nowrap; 
+}
+
+.left-border{
+    border-left: 2px solid rgb(116, 116, 116);
+}
+
+.right-border{
+    border-right: 2px solid rgb(116, 116, 116);
+}
+
 .rangs_container{
     margin-top: 50px;
     margin-bottom: 200px;
@@ -208,7 +239,7 @@ footer {
 /* Таблица участников */
 .uber-table {
     margin: 35px auto;
-    width: 65%;
+    /* width: 65%; */
     border-collapse: collapse;
 }
 
@@ -222,7 +253,6 @@ footer {
     background-color: #e8eef3;
     color: #000;
     padding: 20px;
-    text-align: left; /* Выравнивание текста по левому краю */
     border-bottom: 2px solid #dee2e6;
     border-radius: 12px;
 }
